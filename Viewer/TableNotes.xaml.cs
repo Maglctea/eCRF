@@ -31,18 +31,12 @@ namespace eCRF.Viewer
 
         private async void tableNotes_RowEditEnding(object sender, DataGridRowEditEndingEventArgs e)
         {            
-            await tableControl.saveTableRow<Players>((DataGridRow)e.Row);
-            await tableControl.updateTable<Players>(sender);
-            await settings.updateLastSave();
+            tableControl.table_RowEditEnding<Players>(sender, e);
         }
 
         private async void tableNotes_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
-            if ((bool)e.NewValue)
-                await tableControl.updateTable<Players>(sender);
-            else
-                if (tableNotes.SelectedItem != null)
-                    await tableControl.saveTableRow((Players)tableNotes.SelectedItem);
+            tableControl.table_IsVisibleChanged<Players>(e, tableNotes);
         }
     }
 }

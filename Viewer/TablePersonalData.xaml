@@ -16,7 +16,7 @@
         <model:DateConverter x:Key="DateConverter"/>
     </UserControl.Resources>
     
-        <DataGrid x:Name="tablePersonalData" VerticalAlignment="Top" Grid.ColumnSpan="2" AutoGenerateColumns="False" SelectionMode="Single" CanUserAddRows="False" CanUserDeleteRows="False" RowDetailsVisibilityChanged="tablePersonalData_RowDetailsVisibilityChanged" RowEditEnding="tablePersonalData_RowEditEnding" >
+        <DataGrid x:Name="tablePersonalData" VerticalAlignment="Top" Grid.ColumnSpan="2" AutoGenerateColumns="False" SelectionMode="Single" CanUserAddRows="False" CanUserDeleteRows="False" RowEditEnding="tablePersonalData_RowEditEnding" >
             <DataGrid.Columns>
                 <DataGridTextColumn Header="ID" Width="35" IsReadOnly="True" Binding="{Binding Path=id, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" x:Name="ColumnID" />
                 <DataGridTextColumn Header="Ник" Width="90" Binding="{Binding Path=nickname, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" x:Name="ColumnNickname" />
@@ -40,7 +40,7 @@
 
                 <DataGridTextColumn Header="Возраст" Width="60" Binding="{Binding Path=age, Mode=TwoWay}" x:Name="ColumnAge"/>
                 <DataGridComboBoxColumn Header="Пол" Width="50" ItemsSource="{StaticResource SexList}" SelectedItemBinding="{Binding Path=sex, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" x:Name="ColumnSex"/>
-                <DataGridComboBoxColumn Header="Размер" Width="70" ItemsSource="{StaticResource SizeList}" SelectedItemBinding="{Binding Path=size, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" x:Name="ColumnSize"/>
+                <DataGridComboBoxColumn Header="Размер" Width="50" ItemsSource="{StaticResource SizeList}" SelectedItemBinding="{Binding Path=size, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" x:Name="ColumnSize"/>
             </DataGrid.Columns>
             <DataGrid.RowDetailsTemplate>
                 <DataTemplate>

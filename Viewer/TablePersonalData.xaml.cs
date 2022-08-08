@@ -29,30 +29,12 @@ namespace eCRF.Viewer
 
         private async void UserControl_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
-            if ((bool)e.NewValue)
-                await tableControl.updateTable<Players>(tablePersonalData);
-            else
-                if (tablePersonalData.SelectedItem != null)
-                await tableControl.saveTableRow((Players)tablePersonalData.SelectedItem);
-        }
-
-        private async void tablePersonalData_RowDetailsVisibilityChanged(object sender, DataGridRowDetailsEventArgs e)
-        {
-            if (e.Row.DetailsVisibility == Visibility.Collapsed)
-            {
-                Players player = (Players)e.Row.Item;
-                if (player.nickname != null)
-                {
-                    await tableControl.saveTableRow(player);
-                }
-
-            }
+            tableControl.table_IsVisibleChanged<Players>(e, tablePersonalData);
         }
 
         private async void tablePersonalData_RowEditEnding(object sender, DataGridRowEditEndingEventArgs e)
         {
-            await tableControl.saveTableRow((Players)e.Row.Item);
-            await tableControl.updateTable<Players>(tablePersonalData);
+            tableControl.table_RowEditEnding<Players>(sender, e);
         }
     }
 }

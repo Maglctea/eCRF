@@ -3,6 +3,7 @@ using eCRF.Interface;
 using eCRF.ViewerModels;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Controls;
 
 namespace eCRF.Models
@@ -46,5 +47,22 @@ namespace eCRF.Models
 
             ((DataGrid)sender).ItemsSource = items;
         }
+
+        public async void table_RowEditEnding<M>(object sender, DataGridRowEditEndingEventArgs e) where M : ITable, new()
+        {
+            await saveTableRow<M>((DataGridRow)e.Row);
+            await updateTable<M>(sender);
+            await settings.updateLastSave();
+        }
+
+        public async void table_IsVisibleChanged<M>(DependencyPropertyChangedEventArgs e, DataGrid table) where M : ITable, new()
+        {
+            if ((bool)e.NewValue)
+                await updateTable<M>(table);
+            else
+                if (table.SelectedItem != null)
+                await saveTableRow((M)table.SelectedItem);
+        }
+
     }
 }

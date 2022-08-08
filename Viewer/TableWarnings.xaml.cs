@@ -1,21 +1,10 @@
 ﻿using eCRF.Data;
 using eCRF.ViewerModels;
 using SQLite;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace eCRF.Viewer
 {
@@ -30,6 +19,7 @@ namespace eCRF.Viewer
         DB<Warnings> dbWarnings;
 
         TableControl tableControl = new TableControl();
+        BindingList<Players> dataPlayers;
         public string dbPath { get => AppSettings.dbPath; set => AppSettings.dbPath = value; }
 
         public TableWarnings()
@@ -37,7 +27,7 @@ namespace eCRF.Viewer
             InitializeComponent();
         }
 
-               
+
         private async void tableWarnings_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
         {
             dbWarnings = new DB<Warnings>(dbPath);
@@ -74,6 +64,11 @@ namespace eCRF.Viewer
             if (dbPath == null)
                 return;
             await tableControl.updateTable<Warnings>(tableWarnings);
+
+            dbPlayers = new DB<Players>(dbPath); 
+            dataPlayers = new BindingList<Players>(await dbPlayers.GetItemsAsync());
+
+            nicknameList.ItemsSource = dataPlayers.Select(i => i.nickname);
         }
     }
 }

@@ -24,10 +24,6 @@ namespace eCRF.Viewer
     /// </summary>
     public partial class TablePe : UserControl
     {
-        DB<Players> dbPlayers;
-        DB<Pe> dbPe;
-        BindingList<Players> dataPlayers;
-        BindingList<Pe> dataPe;
         public int selectedSeson;
         TableControl tableControl = new TableControl();
 
@@ -53,8 +49,14 @@ namespace eCRF.Viewer
 
         public async void updateTablePe()
         {
+
             Pe itemPe;
+            BindingList<Pe> dataPe;
+            DB<Pe> dbPe;
             BindingList<Pe> newDataPe = new BindingList<Pe>();
+
+            DB<Players> dbPlayers;
+            BindingList<Players> dataPlayers;
 
             if (dbPath == null)
                 return;
@@ -84,14 +86,14 @@ namespace eCRF.Viewer
 
         private async void tablePE_RowEditEnding(object sender, DataGridRowEditEndingEventArgs e)
         {
-            Pe pe = (Pe)e.Row.Item;
-            if (pe.nickname != null)
+            if (dbPath != null)
             {
-                await dbPe.SaveItemAsync(pe);
+                await tableControl.saveTableRow((Pe)tablePe.SelectedItem);
 
-                dataPe = new BindingList<Pe>(await dbPe.GetItemsAsync());
                 updateTablePe();
+
             }
+
         }
     }
 }

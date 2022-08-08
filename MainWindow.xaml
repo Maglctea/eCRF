@@ -7,7 +7,7 @@
         xmlns:viewer="clr-namespace:eCRF.Viewer"
         xmlns:viewerModels="clr-namespace:eCRF.ViewerModels"
         mc:Ignorable="d"
-        Title="eCRF" Height="450" Width="800" Background="#FFEAEAEA">
+        Title="eCRF" Height="450" Width="800" MinHeight="350" MinWidth="550" Background="#FFEAEAEA">
     
     <Window.Resources>
         <viewer:TableNotes x:Key="TableNotes"/>
@@ -51,7 +51,7 @@
 
         <TabControl Grid.Row="2" Grid.ColumnSpan="2" x:Name="mainTabControl" Visibility="Visible">
             <TabItem x:Name="mainItemTab1" Visibility="Hidden">
-                <TabControl x:Name="tabControl" SelectionChanged="tablePlayersSave">
+                <TabControl x:Name="tabControl">
                     <TabItem Header="Личные данные" Name="tabPersonalData" Visibility="Visible">
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -77,7 +77,7 @@
                 </TabControl>
             </TabItem>
             <TabItem x:Name="mainItemTab2" Visibility="Hidden">
-                <TabControl x:Name="tabContro2" SelectionChanged="tablePlayersSave" >
+                <TabControl x:Name="tabContro2">
                     <TabItem Header="ФО" Name="tabPe">
                         <viewer:TablePe x:Name="tablePe"/>
                     </TabItem>

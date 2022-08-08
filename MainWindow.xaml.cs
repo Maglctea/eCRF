@@ -20,18 +20,14 @@ namespace eCRF
     {
 
         Settings settings = new Settings();
+        ButtonControl buttonControl = new ButtonControl();
 
-        //static PlayersDB playersDB;
-        public DB<Players> dbPlayers;
-        public DB<Warnings> dbWarnings;
         public DB<Settings> dbSettings;
 
         public string dbPath { get => AppSettings.dbPath; set => AppSettings.dbPath = value; }
 
 
         public FileInfo file;
-        BindingList<Players> dataPlayers;
-        BindingList<Warnings> dataWarnings;
         BindingList<Settings> dataSettings;
 
         DispatcherTimer saveInfoTimer = new DispatcherTimer(); //таймер
@@ -53,7 +49,6 @@ namespace eCRF
                 saveInfoTimer.Tick += saveInfoTimer_Tick;
                 saveInfoTimer.Interval = new TimeSpan(0, 0, 2);
                 saveInfoTimer.Start();
-
             }
         }
 
@@ -68,38 +63,36 @@ namespace eCRF
         private async void MenuItem_Click(object sender, RoutedEventArgs e)
         // Открытие БД
         {
-            tablePlayersSave();
             OpenFileDialog openFileDialog = new OpenFileDialog();
             openFileDialog.Multiselect = false;
             openFileDialog.Filter = "Text files (*.db)|*.db";
             openFileDialog.DefaultExt = ".db";
             openFileDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-            Nullable<bool> dialogOK = openFileDialog.ShowDialog();
+            bool? dialogOK = openFileDialog.ShowDialog();
             if (dialogOK == true)
             {                
 
                 dbPath = openFileDialog.FileName;
                 file = new FileInfo(dbPath);
 
-                dbPlayers = new DB<Players>(dbPath);
-                dbWarnings = new DB<Warnings>(dbPath);
-                dbSettings = new DB<Settings>(dbPath);
-
-                dataPlayers = new BindingList<Players>(await dbPlayers.GetItemsAsync());
-                dataSettings = new BindingList<Settings>(await dbSettings.GetItemsAsync());
-
-                tableContacts.tableContacts.ItemsSource = dataPlayers;
-                tableNotes.tableNotes.ItemsSource = dataPlayers;
-                tablePersonalData.tablePersonalData.ItemsSource = dataPlayers;
-
-                settings = new Settings();
-                ComboBoxTabs.ItemsSource = settings.createListTabs(int.Parse(dataSettings.Where(setting => setting.parameter == "season_count").Select(i => i.value).ToList().First()));
-                ComboBoxTabs.SelectedIndex = 0;
-                tabControl.SelectedIndex = 0;
-                string lastSave = await settings.getLastSave();
-
-                
+                OpenBdInTable();
             }
+        }
+
+        private async void OpenBdInTable()
+        {
+            if (dbPath == null)
+                return;
+
+            dbSettings = new DB<Settings>(dbPath);
+
+            dataSettings = new BindingList<Settings>(await dbSettings.GetItemsAsync());
+
+            settings = new Settings();
+            ComboBoxTabs.ItemsSource = settings.createListTabs(int.Parse(dataSettings.Where(setting => setting.parameter == "season_count").Select(i => i.value).ToList().First()));
+            ComboBoxTabs.SelectedIndex = 0;
+            tabControl.SelectedIndex = 1;
+            tabControl.SelectedIndex = 0;
         }
 
         private async void MenuItem_Click_1(object sender, RoutedEventArgs e)
@@ -107,7 +100,6 @@ namespace eCRF
         {
             if (dbPath == null)
                 return;
-            tablePlayersSave();
             SaveFileDialog saveFileDialog = new SaveFileDialog();
             saveFileDialog.Filter = "Text file (*.db)|*.db";
             saveFileDialog.DefaultExt = ".db";
@@ -118,14 +110,13 @@ namespace eCRF
                 FileInfo cacheFile = new FileInfo(@".\Cache\" + file.Name);
                 cacheFile.CopyTo(saveFileDialog.FileName, true);
                 cacheFile.Delete();
-                settings.updateLastSave();
+                await settings.updateLastSave();
             }
         }
 
         private async void MenuItem_Click_2(object sender, RoutedEventArgs e)
         // Создание БД
         {
-            tablePlayersSave();
             SaveFileDialog saveFileDialog = new SaveFileDialog();
             saveFileDialog.Filter = "Text file (*.db)|*.db";
             saveFileDialog.DefaultExt = ".db";
@@ -135,158 +126,39 @@ namespace eCRF
                 FileInfo tempfile = new FileInfo(@".\Template\Temp.db");
                 tempfile.CopyTo(saveFileDialog.FileName, true);
 
-                file = new FileInfo(saveFileDialog.FileName);                
-                dbPlayers = new DB<Players>(file.FullName);
-                //List<Players> todoData = await playersDB.GetPlayersAsync();
-                dataPlayers = new BindingList<Players>(await dbPlayers.GetItemsAsync());
-                tablePersonalData.tablePersonalData.ItemsSource = dataPlayers;
-                settings.updateLastSave();
+                file = new FileInfo(saveFileDialog.FileName);
+                dbPath = file.FullName;
+                await settings.updateLastSave();
+
+                OpenBdInTable();
             }
         }
 
         private async void Add_Click(object sender, RoutedEventArgs e)
         // Кнопка добавления нового игрока
         {
-            if (dbPath == null)
-                return;
-
-            dbPlayers = new DB<Players>(dbPath);
-            //await dbPlayers.SaveItemAsync(new Players());
-            dataPlayers = new BindingList<Players>(await dbPlayers.GetItemsAsync());
-            dataPlayers.Add(new Players());
-            tablePersonalData.tablePersonalData.ItemsSource = dataPlayers;
-            //dataPlayers.ResetItem(dataPlayers.Count - 1);
-            await settings.updateLastSave();
+            await buttonControl.AddTableRow<Players>(tablePersonalData.tablePersonalData);            
         }
 
         private async void Delete_Click(object sender, RoutedEventArgs e)
         // Кнопка удаления выделенной строки
         {
-            try
-            {
-                Players selectedPlayer = (Players)tablePersonalData.tablePersonalData.SelectedItem; // Выделенная строка
-
-                if (selectedPlayer != null)
-                {
-                    await dbPlayers.DeleteItemAsync(selectedPlayer);
-                    dataPlayers = new BindingList<Players>(await dbPlayers.GetItemsAsync());
-                    tablePersonalData.tablePersonalData.ItemsSource = dataPlayers;
-                    await settings.updateLastSave();
-                }
-            }
-            catch (Exception ex)
-            {
-                return;
-            }
+            await buttonControl.DeleteTableRow<Players>(tablePersonalData.tablePersonalData);
         }
 
 
-
-        private async void tablePlayersSave(object sender, SelectionChangedEventArgs e)
-        // Обновление и сохранение данных при переходе между вкладками
+        private async void AddWarning_Click(object sender, RoutedEventArgs e)
         {
-            Players player = null;
-            //Сохранение данных
-            if (e.RemovedItems.Count > 0)
-                if (e.RemovedItems[0] is TabItem && dbPlayers != null)
-                {
-                    switch (((TabItem)e.RemovedItems[0]).Name)
-                    {
-                        case "tabPersonalData":
-                            {
-                                player = (Players)tablePersonalData.tablePersonalData.SelectedItem;
-                                break;
-                            }
-                        case "tabContacts":
-                            {
-                                player = (Players)tableContacts.tableContacts.SelectedItem;
-                                break;
-                            }
-                        case "tabNotes":
-                            {
-                                player = (Players)tableNotes.tableNotes.SelectedItem;
-                                break;
-                            }
-                    }
-                    if (player != null)
-                    {
-                        if (player.nickname != null)
-                        {
-                            await dbPlayers.SaveItemAsync(player);
-                            await settings.updateLastSave();
-                        }
-                        
-                    }
-                }
-            //Обновление данных
-            if (dbPlayers != null)
-            {
-                dataPlayers = new BindingList<Players>(await dbPlayers.GetItemsAsync());
-            }                
+            await buttonControl.AddTableRow<Warnings>(tableWarnings.tableWarnings);
         }
 
-        private async void tablePlayersSave(object sender, DataGridRowDetailsEventArgs e)
-        // Сохранение данных таблицы при смене строки
+        private async void DeleteWarning_Click(object sender, RoutedEventArgs e)
         {
-            if (e.Row.DetailsVisibility == Visibility.Collapsed)
-            {
-                Players player = (Players)e.Row.Item;
-                if (player.nickname != null)
-                {
-                    await dbPlayers.SaveItemAsync(player);
-                    await settings.updateLastSave();
-                }
-                    
-            }
-        }
-
-        private async void tablePlayersSave(object sender, DataGridRowEditEndingEventArgs e)
-        // Сохранение данных таблицы при окончании изменения строки
-        {
-            Players player = (Players)e.Row.Item;
-            if (player.nickname != null)
-            {
-                await dbPlayers.SaveItemAsync(player);
-                await settings.updateLastSave();
-            }
-                
-            dataPlayers = new BindingList<Players>(await dbPlayers.GetItemsAsync());
-            ((DataGrid)sender).ItemsSource = dataPlayers;
-        }
-
-        private async void tablePlayersSave()
-        {
-            Players player = null;
-            switch ((tabControl.SelectedValue as TabItem).Name)
-            {
-                case "tabPersonalData":
-                    {
-                        player = (Players)tablePersonalData.tablePersonalData.SelectedItem;
-                        break;
-                    }
-                case "tabContacts":
-                    {
-                        player = (Players)tableContacts.tableContacts.SelectedItem;
-                        break;
-                    }
-                case "tabNotes":
-                    {
-                        player = (Players)tableNotes.tableNotes.SelectedItem;
-                        break;
-                    }
-            }
-            if (player != null)
-            {
-                if (player.nickname != null)
-                {
-                    await dbPlayers.SaveItemAsync(player);
-                    await settings.updateLastSave();
-                }                    
-            }
+            await buttonControl.DeleteTableRow<Warnings>(tableWarnings.tableWarnings);
         }
 
         private async void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        // Переключение между вкладками
+        // Переключение между разделами
         {            
             if (mainTabControl == null)
                 return;
@@ -308,47 +180,10 @@ namespace eCRF
                 mainTabControl.SelectedIndex = 2;
                 if (dbPath == null)
                     return;
-                //dbPlayers = new DB<Players>(dbPath);
-                dataPlayers = new BindingList<Players>(await dbPlayers.GetItemsAsync());
-
-                tableWarnings.nicknameList.ItemsSource = dataPlayers.Select(i => i.nickname);                               
             }
                 
         }
 
-        private async void AddWarning_Click(object sender, RoutedEventArgs e)
-        {
-            if (dbPath == null)
-                return;
-
-            dbWarnings = new DB<Warnings>(dbPath);
-            //await dbPlayers.SaveItemAsync(new Players());
-            dataWarnings = new BindingList<Warnings>(await dbWarnings.GetItemsAsync());
-            dataWarnings.Add(new Warnings());
-            tableWarnings.tableWarnings.ItemsSource = dataWarnings;
-            //dataPlayers.ResetItem(dataPlayers.Count - 1);
-            await settings.updateLastSave();
-        }
-
-        private async void DeleteWarning_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                Warnings selectedWarning = (Warnings)tableWarnings.tableWarnings.SelectedItem; // Выделенная строка
-
-                if (selectedWarning != null)
-                {
-                    await dbWarnings.DeleteItemAsync(selectedWarning);
-                    dataWarnings = new BindingList<Warnings>(await dbWarnings.GetItemsAsync());
-                    tableWarnings.tableWarnings.ItemsSource = dataWarnings;
-                    await settings.updateLastSave();
-                }
-            }
-            catch (Exception ex)
-            {
-                return;
-            }
-        }
 
     }
 }
