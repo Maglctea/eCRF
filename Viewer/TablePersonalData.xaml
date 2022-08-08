@@ -1,0 +1,63 @@
+﻿<UserControl x:Class="eCRF.Viewer.TablePersonalData"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:eCRF.Viewer"
+             xmlns:viewerModel="clr-namespace:eCRF.ViewerModels"
+             xmlns:model="clr-namespace:eCRF.Models"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800" IsVisibleChanged="UserControl_IsVisibleChanged">
+    <UserControl.Resources>
+        <viewerModel:SizeList x:Key="SizeList"/>
+        <viewerModel:SexList x:Key="SexList"/>
+        <viewerModel:QualificationList x:Key="QualificationList"/>
+        <model:TableWidthConverter x:Key="TableWidthConverter"/>
+        <model:DateConverter x:Key="DateConverter"/>
+    </UserControl.Resources>
+    
+        <DataGrid x:Name="tablePersonalData" VerticalAlignment="Top" Grid.ColumnSpan="2" AutoGenerateColumns="False" SelectionMode="Single" CanUserAddRows="False" CanUserDeleteRows="False" RowDetailsVisibilityChanged="tablePersonalData_RowDetailsVisibilityChanged" RowEditEnding="tablePersonalData_RowEditEnding" >
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="ID" Width="35" IsReadOnly="True" Binding="{Binding Path=id, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" x:Name="ColumnID" />
+                <DataGridTextColumn Header="Ник" Width="90" Binding="{Binding Path=nickname, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" x:Name="ColumnNickname" />
+                <DataGridTextColumn Header="ФИО" Width="180" Binding="{Binding Path=name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" x:Name="ColumnName"/>
+                <DataGridTextColumn Header="Гильдия" Width="90" Binding="{Binding Path=guild, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" x:Name="ColumnGuild"/>
+                <DataGridTextColumn Header="Квалификация" Width="90" Binding="{Binding Path=qualification_score, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" x:Name="ColumnQualification"/>
+
+                <DataGridTemplateColumn Header="Дата рождения" Width="110" x:Name="ColumnGuildDateText">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Path=birth_date, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource DateConverter}, Mode=TwoWay}"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+
+                    <DataGridTemplateColumn.CellEditingTemplate>
+                        <DataTemplate>
+                            <DatePicker SelectedDate="{Binding Path=birth_date, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" FirstDayOfWeek="Monday" DisplayDate="2022-06-06" IsDropDownOpen="False" SelectedDateFormat="Short" ForceCursor="False" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellEditingTemplate>
+                </DataGridTemplateColumn>
+
+                <DataGridTextColumn Header="Возраст" Width="60" Binding="{Binding Path=age, Mode=TwoWay}" x:Name="ColumnAge"/>
+                <DataGridComboBoxColumn Header="Пол" Width="50" ItemsSource="{StaticResource SexList}" SelectedItemBinding="{Binding Path=sex, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" x:Name="ColumnSex"/>
+                <DataGridComboBoxColumn Header="Размер" Width="70" ItemsSource="{StaticResource SizeList}" SelectedItemBinding="{Binding Path=size, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" x:Name="ColumnSize"/>
+            </DataGrid.Columns>
+            <DataGrid.RowDetailsTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Width="{Binding ElementName=ColumnID, Path=Width, Mode=TwoWay, Converter={StaticResource TableWidthConverter}, UpdateSourceTrigger=PropertyChanged }"/>
+                        <TextBlock Width="{Binding ElementName=ColumnNickname, Path=Width, Mode=TwoWay, Converter={StaticResource TableWidthConverter}, UpdateSourceTrigger=PropertyChanged }"/>
+                        <TextBlock Width="{Binding ElementName=ColumnName, Path=Width, Mode=TwoWay, Converter={StaticResource TableWidthConverter}, UpdateSourceTrigger=PropertyChanged }"/>
+                        <DatePicker SelectedDate="{Binding Path=guild_date, UpdateSourceTrigger=PropertyChanged}" FirstDayOfWeek="Monday" DisplayDate="2022-06-06" IsDropDownOpen="False" SelectedDateFormat="Short" ForceCursor="False" 
+                                                Width="{Binding ElementName=ColumnGuild, Path=Width, Mode=TwoWay, Converter={StaticResource TableWidthConverter}, UpdateSourceTrigger=PropertyChanged }"
+                                                x:Name="guild_date_field" />
+                        <ComboBox ItemsSource="{StaticResource QualificationList}" SelectedItem="{Binding Path=qualification_level, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                              Width="{Binding ElementName=ColumnQualification, Path=Width, Mode=TwoWay, Converter={StaticResource TableWidthConverter}, UpdateSourceTrigger=PropertyChanged }"
+                                              Name="qualification_level_field"/>
+
+                    </StackPanel>
+                </DataTemplate>
+            </DataGrid.RowDetailsTemplate>
+
+        </DataGrid>
+</UserControl>

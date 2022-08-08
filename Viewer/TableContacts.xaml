@@ -1,0 +1,19 @@
+﻿<UserControl x:Class="eCRF.Viewer.TableContacts"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:eCRF.Viewer"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    
+        <DataGrid Name="tableContacts" AutoGenerateColumns="False" SelectionMode="Single" CanUserAddRows="False" CanUserDeleteRows="False" RowEditEnding="tableContacts_RowEditEnding" IsVisibleChanged="tableContacts_IsVisibleChanged">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="ID" Width="40" IsReadOnly="True" Binding="{Binding Path=id, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" x:Name="ColumnID2" />
+                <DataGridTextColumn Header="ФИО" Width="180" IsReadOnly="True" Binding="{Binding Path=name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" x:Name="ColumnName2" />
+                <DataGridTextColumn Header="Телефон" Width="100" Binding="{Binding Path=phone_number, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" x:Name="ColumnPhone"/>
+                <DataGridTextColumn Header="E-mail" Width="180" Binding="{Binding Path=email, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" x:Name="ColumnEmail"/>
+            </DataGrid.Columns>
+        </DataGrid>
+    
+</UserControl>

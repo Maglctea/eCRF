@@ -1,0 +1,59 @@
+﻿<UserControl x:Class="eCRF.ViewerModel.TableWarnings"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:eCRF.ViewerModel"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <model:DateConverter x:Key="DateConverter"/>
+        <model:NicknameList x:Key="NicknameList"/>
+        <model:NicknameList x:Key="ResultList"/>
+    </UserControl.Resources>
+    <Grid>
+        <DataGrid x:Name="tableWarnings" VerticalAlignment="Top" Grid.ColumnSpan="2" AutoGenerateColumns="False" SelectionMode="Single" CanUserAddRows="False" CanUserDeleteRows="False" >
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="ID" Width="35" IsReadOnly="True" Binding="{Binding Path=id, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" x:Name="ColumnID" />
+                <DataGridComboBoxColumn Header="Ник" Width="90" ItemsSource="{StaticResource NicknameList}" SelectedItemBinding="{Binding Path=nickname, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" >
+                    <DataGridComboBoxColumn.EditingElementStyle>
+                        <Style TargetType="ComboBox">
+                            <Setter Property="IsEditable" Value="True"/>
+                        </Style>
+                    </DataGridComboBoxColumn.EditingElementStyle>
+                </DataGridComboBoxColumn>
+                <DataGridTextColumn Header="ФИО" Width="180" Binding="{Binding Path=name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" x:Name="ColumnName"/>
+
+                <DataGridTemplateColumn Header="Дата рождения" Width="110" x:Name="ColumnGuildDateText">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Path=warning_date, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource DateConverter}, Mode=TwoWay}"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+
+                    <DataGridTemplateColumn.CellEditingTemplate>
+                        <DataTemplate>
+                            <DatePicker SelectedDate="{Binding Path=warning_date, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" FirstDayOfWeek="Monday" DisplayDate="2022-06-06" IsDropDownOpen="False" SelectedDateFormat="Short" ForceCursor="False" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellEditingTemplate>
+                </DataGridTemplateColumn>
+
+                <DataGridTemplateColumn Header="Описание" Width="*">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Path=description, Mode=TwoWay}" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                    <DataGridTemplateColumn.CellEditingTemplate>
+                        <DataTemplate>
+                            <TextBox Text="{Binding Path=description, Mode=TwoWay}" TextWrapping="Wrap" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellEditingTemplate>
+                </DataGridTemplateColumn>
+
+                <DataGridComboBoxColumn Header="Результат" Width="90" ItemsSource="{StaticResource ResultList}" SelectedItemBinding="{Binding Path=result, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
+
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</UserControl>
